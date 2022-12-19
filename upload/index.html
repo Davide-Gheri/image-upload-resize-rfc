@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Upload to S3</title>
+</head>
+<body>
+<form action="" method="post" enctype="multipart/form-data" onsubmit="uploadPost(event)">
+    <input type="file" id="file" name="file" />
+    <input type="submit" name="submit" value="Upload to Amazon S3" />
+</form>
+<script>
+    async function uploadPost(e) {
+        e.preventDefault();
+        const file = document.getElementById("file").files[0];
+        const key = file.name;
+
+        const { uploadUrl, fields } = await fetch('http://localhost:5000/upload-url/' + key).then(res => res.json());
+
+        const formData = new FormData();
+        Object.entries(fields).forEach(([key, value]) => {
+            formData.append(key, value);
+        })
+        formData.append('file', file);
+
+        await fetch(uploadUrl, {
+            method: 'POST',
+            body: formData,
+        }).then(res => {
+            console.log(res);
+        })
+    }
+</script>
+</body>
+</html>
